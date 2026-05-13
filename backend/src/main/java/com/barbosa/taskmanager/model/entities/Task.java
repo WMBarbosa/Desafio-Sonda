@@ -9,8 +9,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tasks")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -34,16 +33,16 @@ public class Task {
         @Column(nullable = false)
         private Prioridade prioridade;
 
-        @Column(name = "criado_em", nullable = false, updatable = false)
-        private LocalDateTime criadoEm;
+        @Column(name = "criado", nullable = false, updatable = false)
+        private LocalDateTime criado;
 
-        @Column(name = "atualizado_em")
-        private LocalDateTime atualizadoEm;
+        @Column(name = "atualizado")
+        private LocalDateTime atualizado;
 
         @PrePersist
         public void prePersist() {
-            this.criadoEm = LocalDateTime.now();
-            this.atualizadoEm = LocalDateTime.now();
+            this.criado = LocalDateTime.now();
+            this.atualizado = LocalDateTime.now();
             if (this.status == null) {
                 this.status = Status.PENDENTE;
             }
@@ -51,7 +50,7 @@ public class Task {
 
         @PreUpdate
         public void preUpdate() {
-            this.atualizadoEm = LocalDateTime.now();
+            this.atualizado = LocalDateTime.now();
         }
 
 }

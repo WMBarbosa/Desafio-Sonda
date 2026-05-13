@@ -21,8 +21,8 @@ public class TaskResponseDTO {
     private String descricao;
     private Status status;
     private Prioridade prioridade;
-    private LocalDateTime criadoEm;
-    private LocalDateTime atualizadoEm;
+    private LocalDateTime criado;
+    private LocalDateTime atualizado;
 
     public static TaskResponseDTO fromEntity(Task task) {
         return TaskResponseDTO.builder()
@@ -31,8 +31,8 @@ public class TaskResponseDTO {
                 .descricao(task.getDescricao())
                 .status(task.getStatus())
                 .prioridade(task.getPrioridade())
-                .criadoEm(task.getCriadoEm())
-                .atualizadoEm(task.getAtualizadoEm())
+                .criado(task.getCriado())
+                .atualizado(task.getAtualizado())
                 .build();
     }
 }
