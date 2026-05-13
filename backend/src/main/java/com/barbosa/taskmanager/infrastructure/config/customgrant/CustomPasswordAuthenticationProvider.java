@@ -70,11 +70,15 @@ public class CustomPasswordAuthenticationProvider implements AuthenticationProvi
 		if (!passwordEncoder.matches(password, user.getPassword()) || !user.getUsername().equals(username)) {
 			throw new OAuth2AuthenticationException("Invalid credentials");
 		}
-		
-		authorizedScopes = user.getAuthorities().stream()
-				.map(scope -> scope.getAuthority())
-				.filter(scope -> registeredClient.getScopes().contains(scope))
-				.collect(Collectors.toSet());
+
+		Set<String> requestedScopes = new HashSet<>(customPasswordAuthenticationToken.getScopes());
+		if (requestedScopes.isEmpty()) {
+			authorizedScopes = new HashSet<>(registeredClient.getScopes());
+		} else {
+			authorizedScopes = registeredClient.getScopes().stream()
+					.filter(requestedScopes::contains)
+					.collect(Collectors.toSet());
+		}
 		
 		//-----------Create a new Security Context Holder Context----------
 		OAuth2ClientAuthenticationToken oAuth2ClientAuthenticationToken = (OAuth2ClientAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();

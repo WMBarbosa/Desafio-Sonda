@@ -68,7 +68,7 @@ public class ResourceServerConfig {
 
 		CorsConfiguration corsConfig = new CorsConfiguration();
 		corsConfig.setAllowedOriginPatterns(Arrays.asList(origins));
-		corsConfig.setAllowedMethods(Arrays.asList("POST", "GET", "PUT", "DELETE", "PATCH"));
+		corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 		corsConfig.setAllowCredentials(true);
 		corsConfig.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
 

@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import axios from "axios";
 import { LayoutDashboard, Eye, EyeOff, Loader2 } from "lucide-react";
 import { loginSchema} from "../schemas";
 import type {LoginFormData } from "../schemas";
@@ -27,8 +28,27 @@ export function LoginPage() {
       await login({ username: data.username, password: data.password });
       navigate("/dashboard");
     } catch (err: unknown) {
+      if (axios.isAxiosError(err) && !err.response) {
+        setServerError(
+          "Não foi possível contatar o servidor (rede ou bloqueio CORS). Confira se a API está no ar e se o backend permite a origem deste app (ex.: http://localhost:3000)."
+        );
+        return;
+      }
+      const ax = err as {
+        response?: {
+          status?: number;
+          data?: { message?: string; error_description?: string; error?: string };
+        };
+      };
+      const data = ax?.response?.data;
+      const status = ax?.response?.status;
       setServerError(
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Credenciais inválidas. Tente novamente."
+        data?.error_description ??
+          data?.message ??
+          (status != null && status >= 500
+            ? "Erro no servidor ao autenticar. Verifique o backend e tente novamente."
+            : undefined) ??
+          "Credenciais inválidas. Tente novamente."
       );
     }
   }

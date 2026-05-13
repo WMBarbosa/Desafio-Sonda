@@ -25,12 +25,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [roles, setRoles] = useState(() => initFromStorage().roles);
 
   async function login({ username, password }: LoginRequest) {
+    const clientId = import.meta.env.VITE_OAUTH_CLIENT_ID ?? "myclientid";
+    const clientSecret = import.meta.env.VITE_OAUTH_CLIENT_SECRET ?? "myclientsecret";
+    const basic = btoa(`${clientId}:${clientSecret}`);
+
     const params = new URLSearchParams();
+    params.append("grant_type", "password");
     params.append("username", username);
     params.append("password", password);
+    params.append("scope", "read write");
 
-    const { data } = await api.post("/login", params, {
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    const { data } = await api.post("/oauth2/token", params, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${basic}`,
+      },
     });
 
     const accessToken: string = data.access_token ?? data.token ?? data;
