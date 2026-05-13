@@ -39,7 +39,7 @@ export type Status =
   | "CONCLUIDA"
   | "CANCELADA";
 
-export type Prioridade = "BAIXA" | "MEDIA" | "ALTA" | "CRITICA";
+export type Prioridade = "BAIXA" | "MEDIA" | "ALTA" | "URGENTE";
 
 export interface TaskResponseDTO {
   id: number;

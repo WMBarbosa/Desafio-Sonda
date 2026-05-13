@@ -21,7 +21,7 @@ export const taskSchema = z.object({
   status: z.enum(["PENDENTE", "EM_ANDAMENTO", "CONCLUIDA", "CANCELADA"], {
     required_error: "Status é obrigatório",
   }),
-  prioridade: z.enum(["BAIXA", "MEDIA", "ALTA", "CRITICA"], {
+  prioridade: z.enum(["BAIXA", "MEDIA", "ALTA", "URGENTE"], {
     required_error: "Prioridade é obrigatória",
   }),
 });

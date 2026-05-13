@@ -89,7 +89,7 @@ export function TaskForm({ task, onClose, onSubmit }: TaskFormProps) {
                 <option value="BAIXA">Baixa</option>
                 <option value="MEDIA">Média</option>
                 <option value="ALTA">Alta</option>
-                <option value="CRITICA">Crítica</option>
+                <option value="URGENTE">Urgente</option>
               </select>
             </Field>
           </div>

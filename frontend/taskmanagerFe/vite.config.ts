@@ -7,6 +7,8 @@ import autoprefixer from "autoprefixer";
 
 const projectDir = path.dirname(fileURLToPath(import.meta.url));
 
+// https://vite.dev/config/
+// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   css: {

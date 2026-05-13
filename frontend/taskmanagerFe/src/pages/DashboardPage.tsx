@@ -30,7 +30,7 @@ export function DashboardPage() {
     emAndamento: tasks.filter((t) => t.status === "EM_ANDAMENTO").length,
     concluida: tasks.filter((t) => t.status === "CONCLUIDA").length,
     cancelada: tasks.filter((t) => t.status === "CANCELADA").length,
-    critica: tasks.filter((t) => t.prioridade === "CRITICA").length,
+    urgente: tasks.filter((t) => t.prioridade === "URGENTE").length,
   };
 
   if (loading) {
@@ -75,8 +75,8 @@ export function DashboardPage() {
         />
         <StatCard
           icon={<AlertCircle size={20} />}
-          label="Críticas"
-          value={stats.critica}
+          label="Urgentes"
+          value={stats.urgente}
           color="red"
         />
       </div>

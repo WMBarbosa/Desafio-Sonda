@@ -32,8 +32,8 @@ const prioridadeConfig: Record<Prioridade, { label: string; className: string }>
     label: "Alta",
     className: "bg-orange-500/20 text-orange-400 border border-orange-500/30",
   },
-  CRITICA: {
-    label: "Crítica",
+  URGENTE: {
+    label: "Urgente",
     className: "bg-red-500/20 text-red-400 border border-red-500/30",
   },
 };
