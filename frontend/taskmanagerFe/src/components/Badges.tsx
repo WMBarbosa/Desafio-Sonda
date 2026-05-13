@@ -40,6 +40,13 @@ const prioridadeConfig: Record<Prioridade, { label: string; className: string }>
 
 export function StatusBadge({ status }: { status: Status }) {
   const config = statusConfig[status];
+  if (!config) {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-600/30 text-slate-300 border border-slate-500/40">
+        {String(status)}
+      </span>
+    );
+  }
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.className}`}>
       {config.label}
@@ -49,6 +56,13 @@ export function StatusBadge({ status }: { status: Status }) {
 
 export function PrioridadeBadge({ prioridade }: { prioridade: Prioridade }) {
   const config = prioridadeConfig[prioridade];
+  if (!config) {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-600/30 text-slate-300 border border-slate-500/40">
+        {String(prioridade)}
+      </span>
+    );
+  }
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.className}`}>
       {config.label}

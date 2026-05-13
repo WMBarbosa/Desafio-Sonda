@@ -20,11 +20,23 @@ import { SortableHeader } from "../components/SortableHeader";
 import { useSortableTable } from "../hooks/useSortableTable";
 import { useAuth } from "../contexts/UseAuth";
 
+function formatCriado(criado: string | number[] | undefined): string {
+  if (criado == null) return "—";
+  if (Array.isArray(criado)) {
+    const [y, mo = 1, d = 1, h = 0, mi = 0, s = 0, ns = 0] = criado;
+    const dt = new Date(y, mo - 1, d, h, mi, s, Math.floor(ns / 1_000_000));
+    return Number.isNaN(dt.getTime()) ? "—" : dt.toLocaleDateString("pt-BR");
+  }
+  const dt = new Date(criado);
+  return Number.isNaN(dt.getTime()) ? "—" : dt.toLocaleDateString("pt-BR");
+}
+
 export function TarefasPage() {
   const { isAdmin } = useAuth();
 
   const [tasks, setTasks] = useState<TaskResponseDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<Status | "">("");
@@ -37,7 +49,7 @@ export function TarefasPage() {
   const { sortedData, sort, handleSort } = useSortableTable(tasks);
 
   const filtered = sortedData.filter((t) => {
-    const matchSearch = t.titulo
+    const matchSearch = (t.titulo ?? "")
       .toLowerCase()
       .includes(search.toLowerCase());
 
@@ -50,42 +62,48 @@ export function TarefasPage() {
 
   async function loadTasks() {
     setLoading(true);
+    setLoadError(null);
 
     try {
       const data = await taskService.findAll();
       setTasks(data);
     } catch (error) {
       console.error("Erro ao carregar tarefas:", error);
+      setLoadError("Não foi possível carregar as tarefas. Verifique a API e o token.");
     } finally {
       setLoading(false);
     }
   }
 
- useEffect(() => {
-  let mounted = true;
+  useEffect(() => {
+    let mounted = true;
 
-  async function fetchTasks() {
-    try {
-      const data = await taskService.findAll();
+    async function fetchTasks() {
+      setLoadError(null);
+      try {
+        const data = await taskService.findAll();
 
-      if (mounted) {
-        setTasks(data);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      if (mounted) {
-        setLoading(false);
+        if (mounted) {
+          setTasks(data);
+        }
+      } catch (error) {
+        console.error(error);
+        if (mounted) {
+          setLoadError("Não foi possível carregar as tarefas. Verifique a API e o token.");
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
     }
-  }
 
-  void fetchTasks();
+    void fetchTasks();
 
-  return () => {
-    mounted = false;
-  };
-}, []);
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   async function handleSubmit(data: TaskFormData) {
     try {
@@ -205,6 +223,12 @@ export function TarefasPage() {
         </select>
       </div>
 
+      {loadError && (
+        <div className="px-4 py-3 rounded-lg text-sm bg-amber-500/10 border border-amber-500/30 text-amber-200">
+          {loadError}
+        </div>
+      )}
+
       <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center h-48">
@@ -212,6 +236,10 @@ export function TarefasPage() {
               className="animate-spin text-indigo-400"
               size={28}
             />
+          </div>
+        ) : loadError && tasks.length === 0 ? (
+          <div className="flex items-center justify-center h-48 text-amber-200/90 text-sm px-6 text-center">
+            {loadError}
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex items-center justify-center h-48 text-slate-500 text-sm">
@@ -290,9 +318,7 @@ export function TarefasPage() {
                     </td>
 
                     <td className="px-4 py-3 text-sm text-slate-400">
-                      {new Date(task.criado).toLocaleDateString(
-                        "pt-BR"
-                      )}
+                      {formatCriado(task.criado as string | number[] | undefined)}
                     </td>
 
                     {isAdmin && (

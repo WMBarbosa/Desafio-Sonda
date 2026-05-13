@@ -6,16 +6,31 @@ import type {
   TaskResponseDTO,
 } from "../types";
 
+function normalizeTaskList(payload: unknown): TaskResponseDTO[] {
+  if (Array.isArray(payload)) {
+    return payload as TaskResponseDTO[];
+  }
+  if (
+    payload &&
+    typeof payload === "object" &&
+    "content" in payload &&
+    Array.isArray((payload as { content: unknown }).content)
+  ) {
+    return (payload as { content: TaskResponseDTO[] }).content;
+  }
+  return [];
+}
+
 export const taskService = {
   async findAll(params?: {
     status?: Status;
     prioridade?: Prioridade;
     titulo?: string;
   }): Promise<TaskResponseDTO[]> {
-    const { data } = await api.get<TaskResponseDTO[]>("/api/tarefas", {
+    const { data } = await api.get<unknown>("/api/tarefas", {
       params,
     });
-    return data;
+    return normalizeTaskList(data);
   },
 
   async findById(id: number): Promise<TaskResponseDTO> {

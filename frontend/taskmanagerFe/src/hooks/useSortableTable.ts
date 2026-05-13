@@ -22,9 +22,10 @@ export function useSortableTable<T>(data: T[]) {
   }
 
   const sortedData = useMemo(() => {
-    if (!sort.key || !sort.direction) return data;
+    const list = Array.isArray(data) ? data : [];
+    if (!sort.key || !sort.direction) return list;
 
-    return [...data].sort((a, b) => {
+    return [...list].sort((a, b) => {
       const aVal = a[sort.key!];
       const bVal = b[sort.key!];
 
