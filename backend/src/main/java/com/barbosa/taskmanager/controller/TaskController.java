@@ -6,10 +6,12 @@ import com.barbosa.taskmanager.dto.response.TaskResponseDTO;
 import com.barbosa.taskmanager.model.enums.Prioridade;
 import com.barbosa.taskmanager.model.enums.Status;
 import com.barbosa.taskmanager.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +26,8 @@ public class TaskController {
 
 
     @GetMapping
+    @Operation(summary = "Lista todas as tarefas ou filtra por status, prioridade ou título")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN'. 'ROLE_EMPLOYEE')")
     public ResponseEntity<List<TaskResponseDTO>> listar(
             @RequestParam(required = false) Status status,
             @RequestParam(required = false) Prioridade prioridade,
@@ -44,12 +48,16 @@ public class TaskController {
 
 
     @GetMapping("/{id}")
+    @Operation(summary = "Busca uma tarefa por ID")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN'. 'ROLE_EMPLOYEE')")
     public ResponseEntity<TaskResponseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(taskService.findById(id));
     }
 
 
     @PostMapping
+    @Operation(summary = "Cria uma nova tarefa")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<TaskResponseDTO> criar(@RequestBody @Valid TaskRequestDTO dto) {
         TaskResponseDTO criada = taskService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(criada);
@@ -57,6 +65,8 @@ public class TaskController {
 
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    @Operation(summary = "Atualiza uma tarefa existente")
     public ResponseEntity<TaskResponseDTO> atualizar(
             @PathVariable Long id,
             @RequestBody @Valid TaskRequestDTO dto) {
@@ -66,6 +76,8 @@ public class TaskController {
 
 
     @PatchMapping("/{id}/status")
+    @Operation(summary = "Atualiza o status de uma tarefa existente")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<TaskResponseDTO> atualizarStatus(
             @PathVariable Long id,
             @RequestBody Map<String, String> body) {
@@ -86,6 +98,8 @@ public class TaskController {
 
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Deleta uma tarefa existente")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         taskService.delete(id);
         return ResponseEntity.noContent().build();
