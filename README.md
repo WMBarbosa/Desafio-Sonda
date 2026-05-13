@@ -1,14 +1,12 @@
 # TaskManager
 
-Aplicação de gestão de tarefas com **front-end em React (Vite + TypeScript)** e **back-end em Spring Boot**, autenticação **OAuth2 Authorization Server** (grant type `password`) e **JWT** como resource server nas APIs REST.
-
-Este repositório corresponde ao projeto **`taskmanagerFe`** (front-end). O back-end fica no diretório irmão **`backend`**, relativo à raiz do monorepositório `taskmanager`:
+Monorepositório de gestão de tarefas com **back-end em Spring Boot** (OAuth2 Authorization Server com grant `password` e **JWT** no resource server) e **front-end em React (Vite + TypeScript)**.
 
 ```text
 taskmanager/
 ├── backend/                 # API Spring Boot
 └── frontend/
-    └── taskmanagerFe/       # Este projeto (React)
+    └── taskmanagerFe/       # SPA React
 ```
 
 ---
@@ -16,33 +14,20 @@ taskmanager/
 ## Índice
 
 1. [Tecnologias utilizadas](#tecnologias-utilizadas)
-2. [Estrutura do projeto (front-end)](#estrutura-do-projeto-front-end)
-3. [Pré-requisitos](#pré-requisitos)
-4. [Como iniciar o back-end](#como-iniciar-o-back-end)
-5. [Como iniciar o front-end](#como-iniciar-o-front-end)
-6. [Variáveis de ambiente](#variáveis-de-ambiente)
-7. [Autenticação e fluxo resumido](#autenticação-e-fluxo-resumido)
-8. [Scripts úteis (front-end)](#scripts-úteis-front-end)
+2. [Estrutura do projeto (back-end)](#estrutura-do-projeto-back-end)
+3. [Estrutura do projeto (front-end)](#estrutura-do-projeto-front-end)
+4. [Pré-requisitos](#pré-requisitos)
+5. [Como iniciar o back-end](#como-iniciar-o-back-end)
+6. [Como iniciar o front-end](#como-iniciar-o-front-end)
+7. [Variáveis de ambiente](#variáveis-de-ambiente)
+8. [Autenticação e fluxo resumido](#autenticação-e-fluxo-resumido)
+9. [Scripts úteis (front-end)](#scripts-úteis-front-end)
 
 ---
 
 ## Tecnologias utilizadas
 
-### Front-end (`taskmanagerFe`)
-
-| Tecnologia | Uso |
-|------------|-----|
-| [React 18](https://react.dev/) | Interface e componentes |
-| [TypeScript](https://www.typescriptlang.org/) | Tipagem estática |
-| [Vite 8](https://vitejs.dev/) | Dev server, HMR e build |
-| [React Router 6](https://reactrouter.com/) | Rotas e layouts protegidos |
-| [Tailwind CSS 3](https://tailwindcss.com/) | Estilização utilitária |
-| [Axios](https://axios-http.com/) | Cliente HTTP e interceptors (JWT) |
-| [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) + [@hookform/resolvers](https://github.com/react-hook-form/resolvers) | Formulários e validação |
-| [jwt-decode](https://github.com/auth0/jwt-decode) | Leitura de claims do access token |
-| [Lucide React](https://lucide.dev/) | Ícones |
-
-### Back-end (`../backend` em relação a `frontend/`)
+### Back-end (`backend/`)
 
 | Tecnologia | Uso |
 |------------|-----|
@@ -56,12 +41,116 @@ taskmanager/
 | [H2](https://www.h2database.com/) | Disponível para cenários de teste/console |
 | [Springdoc OpenAPI](https://springdoc.org/) | Documentação Swagger/OpenAPI |
 
+### Front-end (`frontend/taskmanagerFe/`)
+
+| Tecnologia | Uso |
+|------------|-----|
+| [React 18](https://react.dev/) | Interface e componentes |
+| [TypeScript](https://www.typescriptlang.org/) | Tipagem estática |
+| [Vite 8](https://vitejs.dev/) | Dev server, HMR e build |
+| [React Router 6](https://reactrouter.com/) | Rotas e layouts protegidos |
+| [Tailwind CSS 3](https://tailwindcss.com/) | Estilização utilitária |
+| [Axios](https://axios-http.com/) | Cliente HTTP e interceptors (JWT) |
+| [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) + [@hookform/resolvers](https://github.com/react-hook-form/resolvers) | Formulários e validação |
+| [jwt-decode](https://github.com/auth0/jwt-decode) | Leitura de claims do access token |
+| [Lucide React](https://lucide.dev/) | Ícones |
+
+---
+
+## Estrutura do projeto (back-end)
+
+Árvore do pacote **`backend/`** (código-fonte e configuração Maven; pastas de build como `target/` e metadados de IDE como `.idea/` não entram no versionamento típico e podem ser ignoradas ao navegar o projeto):
+
+```text
+backend/
+├── .gitattributes
+├── .gitignore
+├── HELP.md
+├── mvnw
+├── mvnw.cmd
+├── pom.xml
+├── .mvn/
+│   └── wrapper/
+│       └── maven-wrapper.properties
+└── src/
+    ├── main/
+    │   ├── java/com/barbosa/taskmanager/
+    │   │   ├── TaskmanagerApplication.java
+    │   │   ├── api/
+    │   │   │   └── controller/
+    │   │   │       ├── TaskController.java
+    │   │   │       ├── UserController.java
+    │   │   │       └── controllerException/
+    │   │   │           ├── CustomError.java
+    │   │   │           └── GlobalExceptionHandler.java
+    │   │   ├── application/
+    │   │   │   └── dto/
+    │   │   │       ├── UserDetailsDTO.java
+    │   │   │       ├── exceptionsDto/
+    │   │   │       │   ├── FieldMessage.java
+    │   │   │       │   └── ValidationError.java
+    │   │   │       ├── request/
+    │   │   │       │   ├── TaskRequestDTO.java
+    │   │   │       │   └── UserResquestDTO.java
+    │   │   │       ├── response/
+    │   │   │       │   ├── TaskResponseDTO.java
+    │   │   │       │   └── UserResponseDTO.java
+    │   │   │       └── service/
+    │   │   │           ├── AuthService.java
+    │   │   │           ├── TaskService.java
+    │   │   │           ├── UserService.java
+    │   │   │           └── exception/
+    │   │   │               ├── DatabaseException.java
+    │   │   │               ├── ForbiddenException.java
+    │   │   │               └── ResourceNotFoundException.java
+    │   │   ├── domain/
+    │   │   │   └── model/
+    │   │   │       ├── entities/
+    │   │   │       │   ├── Role.java
+    │   │   │       │   ├── Task.java
+    │   │   │       │   └── User.java
+    │   │   │       └── enums/
+    │   │   │           ├── Prioridade.java
+    │   │   │           └── Status.java
+    │   │   └── infrastructure/
+    │   │       └── config/
+    │   │           ├── OpenApiConfig.java
+    │   │           ├── customgrant/
+    │   │           │   ├── CustomPasswordAuthenticationConverter.java
+    │   │           │   ├── CustomPasswordAuthenticationProvider.java
+    │   │           │   ├── CustomPasswordAuthenticationToken.java
+    │   │           │   └── CustomUserAuthorities.java
+    │   │           ├── repository/
+    │   │           │   ├── TaskRepository.java
+    │   │           │   └── UserRepository.java
+    │   │           └── security/
+    │   │               ├── AuthorizationServerConfig.java
+    │   │               └── ResourceServerConfig.java
+    │   └── resources/
+    │       ├── application.properties
+    │       ├── application-prod.properties
+    │       ├── application-test.properties
+    │       └── data.sql
+    └── test/
+        └── java/com/barbosa/taskmanager/
+            └── TaskmanagerApplicationTests.java
+```
+
+Resumo por camada:
+
+| Camada | Conteúdo |
+|--------|----------|
+| `api/controller` | REST (`TaskController`, `UserController`) e tratamento global de erros |
+| `application/dto` | DTOs de request/response, validação de erro e serviços de aplicação |
+| `domain/model` | Entidades JPA (`User`, `Task`, `Role`) e enums (`Status`, `Prioridade`) |
+| `infrastructure/config` | OAuth2 custom grant, segurança, repositórios Spring Data e OpenAPI |
+
 ---
 
 ## Estrutura do projeto (front-end)
 
 ```text
-taskmanagerFe/
+frontend/taskmanagerFe/
 ├── index.html              # HTML de entrada do Vite
 ├── package.json
 ├── vite.config.ts          # Vite + PostCSS (Tailwind + Autoprefixer)
@@ -98,16 +187,16 @@ Principais rotas da SPA:
 
 ## Pré-requisitos
 
-### Front-end
-
-- [Node.js](https://nodejs.org/) **18+** (recomendado LTS atual)
-- npm (vem com o Node)
-
 ### Back-end
 
 - [JDK 21](https://adoptium.net/)
 - [Maven](https://maven.apache.org/) **ou** use o wrapper `./mvnw` / `mvnw.cmd` na pasta do back-end
 - [PostgreSQL](https://www.postgresql.org/) em execução, com banco e usuário compatíveis com `application-prod.properties` (perfil ativo padrão: `prod`)
+
+### Front-end
+
+- [Node.js](https://nodejs.org/) **18+** (recomendado LTS atual)
+- npm (vem com o Node)
 
 ---
 
@@ -153,7 +242,7 @@ Principais rotas da SPA:
 
 ## Como iniciar o front-end
 
-1. **Instale as dependências** (na pasta deste projeto):
+1. **Instale as dependências** (na pasta do front-end):
 
    ```bash
    cd frontend/taskmanagerFe
@@ -176,7 +265,16 @@ Principais rotas da SPA:
 
 ## Variáveis de ambiente
 
-Crie um arquivo **`.env`** na raiz de `taskmanagerFe` (variáveis expostas ao cliente devem começar com `VITE_`):
+No **back-end**, variáveis comuns (via `application.properties` / ambiente):
+
+| Variável / propriedade | Descrição |
+|------------------------|-----------|
+| `CLIENT_ID` / `CLIENT_SECRET` | Credenciais do client OAuth2 |
+| `JWT_DURATION` | TTL do access token (segundos) |
+| `CORS_ORIGINS` | Origens permitidas (lista separada por vírgula) |
+| `SPRING_DATASOURCE_URL` | JDBC PostgreSQL |
+
+Crie um arquivo **`.env`** na raiz de `frontend/taskmanagerFe` (variáveis expostas ao cliente devem começar com `VITE_`):
 
 | Variável | Descrição | Padrão no código (se omitida) |
 |----------|-----------|----------------------------------|
@@ -191,15 +289,6 @@ VITE_API_BASE_URL=http://localhost:8888
 VITE_OAUTH_CLIENT_ID=myclientid
 VITE_OAUTH_CLIENT_SECRET=myclientsecret
 ```
-
-No **back-end**, variáveis comuns (via `application.properties` / ambiente):
-
-| Variável / propriedade | Descrição |
-|------------------------|-----------|
-| `CLIENT_ID` / `CLIENT_SECRET` | Credenciais do client OAuth2 |
-| `JWT_DURATION` | TTL do access token (segundos) |
-| `CORS_ORIGINS` | Origens permitidas (lista separada por vírgula) |
-| `SPRING_DATASOURCE_URL` | JDBC PostgreSQL |
 
 ---
 
@@ -226,9 +315,3 @@ Endpoints REST usados pelo front (prefixo relativo à `VITE_API_BASE_URL`):
 | `npm run build` | Typecheck (`tsc -b`) + build de produção |
 | `npm run preview` | Servir a pasta `dist` localmente |
 | `npm run lint` | ESLint |
-
----
-
-## Licença
-
-Defina a licença do repositório conforme a política do seu projeto (este README não impõe licença).
