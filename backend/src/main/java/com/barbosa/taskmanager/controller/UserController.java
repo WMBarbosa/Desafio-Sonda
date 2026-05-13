@@ -21,7 +21,7 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @Operation(summary = "Listar usuários",
             description = "Retorna uma lista paginada de usuários. Acesso permitido para administradores e funcionários.")
     public ResponseEntity<Page<UserResponseDTO>> findAll(Pageable pageable) {
@@ -30,7 +30,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @Operation(summary = "Buscar usuário por ID",
             description = "Retorna os detalhes de um usuário específico com base no ID fornecido. Acesso permitido para administradores e funcionários.")
     public ResponseEntity<UserResponseDTO> findById (@PathVariable Long id) {
@@ -39,7 +39,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/me")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @Operation(summary = "Obter informações do usuário autenticado",
             description = "Retorna os detalhes do usuário atualmente autenticado. Acesso permitido para administradores e funcionários.")
     public ResponseEntity<UserResponseDTO> getMe () {

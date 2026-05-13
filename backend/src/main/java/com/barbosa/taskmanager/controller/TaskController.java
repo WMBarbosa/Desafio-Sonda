@@ -27,7 +27,7 @@ public class TaskController {
 
     @GetMapping
     @Operation(summary = "Lista todas as tarefas ou filtra por status, prioridade ou título")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN'. 'ROLE_EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<List<TaskResponseDTO>> listar(
             @RequestParam(required = false) Status status,
             @RequestParam(required = false) Prioridade prioridade,
@@ -49,7 +49,7 @@ public class TaskController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Busca uma tarefa por ID")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN'. 'ROLE_EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<TaskResponseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(taskService.findById(id));
     }
