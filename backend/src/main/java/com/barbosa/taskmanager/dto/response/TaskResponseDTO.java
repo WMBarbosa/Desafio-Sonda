@@ -1,4 +1,4 @@
-package com.barbosa.taskmanager.dto;
+package com.barbosa.taskmanager.dto.response;
 
 import com.barbosa.taskmanager.model.entities.Task;
 import com.barbosa.taskmanager.model.enums.Prioridade;

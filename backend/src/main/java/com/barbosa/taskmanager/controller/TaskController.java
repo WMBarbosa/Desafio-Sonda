@@ -1,9 +1,8 @@
 package com.barbosa.taskmanager.controller;
 
 
-import com.barbosa.taskmanager.dto.TaskRequestDTO;
-import com.barbosa.taskmanager.dto.TaskResponseDTO;
-import com.barbosa.taskmanager.model.entities.Task;
+import com.barbosa.taskmanager.dto.request.TaskRequestDTO;
+import com.barbosa.taskmanager.dto.response.TaskResponseDTO;
 import com.barbosa.taskmanager.model.enums.Prioridade;
 import com.barbosa.taskmanager.model.enums.Status;
 import com.barbosa.taskmanager.service.TaskService;
@@ -75,7 +74,6 @@ public class TaskController {
         if (statusStr == null || statusStr.isBlank()) {
             return ResponseEntity.badRequest().build();
         }
-
         Status novoStatus;
         try {
             novoStatus = Status.valueOf(statusStr.toUpperCase());

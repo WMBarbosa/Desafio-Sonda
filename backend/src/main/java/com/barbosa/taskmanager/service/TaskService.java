@@ -1,8 +1,8 @@
 package com.barbosa.taskmanager.service;
 
-import com.barbosa.taskmanager.dto.TaskRequestDTO;
-import com.barbosa.taskmanager.dto.TaskResponseDTO;
-import com.barbosa.taskmanager.exception.TaskNotFoundException;
+import com.barbosa.taskmanager.dto.request.TaskRequestDTO;
+import com.barbosa.taskmanager.dto.response.TaskResponseDTO;
+import com.barbosa.taskmanager.service.exception.ResourceNotFoundException;
 import com.barbosa.taskmanager.model.entities.Task;
 import com.barbosa.taskmanager.model.enums.Prioridade;
 import com.barbosa.taskmanager.model.enums.Status;
@@ -29,7 +29,7 @@ public class TaskService {
 
     public TaskResponseDTO findById(Long id) {
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new TaskNotFoundException(id));
+                .orElseThrow(() -> new ResourceNotFoundException(id));
         return TaskResponseDTO.fromEntity(task);
     }
 
@@ -72,7 +72,7 @@ public class TaskService {
 
     public TaskResponseDTO update(Long id, TaskRequestDTO dto) {
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new TaskNotFoundException(id));
+                .orElseThrow(() -> new ResourceNotFoundException(id));
 
         task.setTitulo(dto.getTitulo());
         task.setDescricao(dto.getDescricao());
@@ -89,7 +89,7 @@ public class TaskService {
 
     public TaskResponseDTO updateStatus(Long id, Status novoStatus) {
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new TaskNotFoundException(id));
+                .orElseThrow(() -> new ResourceNotFoundException(id));
 
         task.setStatus(novoStatus);
         Task atualizada = taskRepository.save(task);
@@ -99,7 +99,7 @@ public class TaskService {
 
     public void delete(Long id) {
         if (!taskRepository.existsById(id)) {
-            throw new TaskNotFoundException(id);
+            throw new ResourceNotFoundException(id);
         }
         taskRepository.deleteById(id);
     }
