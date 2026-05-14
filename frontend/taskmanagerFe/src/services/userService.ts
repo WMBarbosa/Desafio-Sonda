@@ -1,11 +1,6 @@
 import api from "../lib/api";
 import type { Page, Role, RoleAuthority, UserResponseDTO } from "../types";
 
-/**
- * Spring returns `roles` as `string[]` (see UserResponseDTO.fromEntity).
- * The UI expects `Role[]` with `authority`; without this, `role.authority` is
- * undefined on each string and every badge renders as "Employee".
- */
 function normalizeRoles(raw: unknown): Role[] {
   if (!Array.isArray(raw)) return [];
   const seen = new Set<string>();
