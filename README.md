@@ -20,11 +20,12 @@ taskmanager/
 4. [Pré-requisitos](#pré-requisitos)
 5. [Subir com Docker (Compose)](#subir-com-docker-compose)
 6. [Como iniciar o back-end](#como-iniciar-o-back-end)
-7. [Testes (back-end)](#testes-back-end)
-8. [Como iniciar o front-end](#como-iniciar-o-front-end)
-9. [Variáveis de ambiente](#variáveis-de-ambiente)
-10. [Autenticação e fluxo resumido](#autenticação-e-fluxo-resumido)
-11. [Scripts úteis (front-end)](#scripts-úteis-front-end)
+7. [Documentação da API (Swagger)](#documentação-da-api-swagger)
+8. [Testes (back-end)](#testes-back-end)
+9. [Como iniciar o front-end](#como-iniciar-o-front-end)
+10. [Variáveis de ambiente](#variáveis-de-ambiente)
+11. [Autenticação e fluxo resumido](#autenticação-e-fluxo-resumido)
+12. [Scripts úteis (front-end)](#scripts-úteis-front-end)
 
 ---
 
@@ -286,7 +287,41 @@ Variáveis úteis já passadas ao serviço `backend` no compose (podem ser ajust
 
 4. **Porta HTTP**: por padrão o Spring Boot usa **`8080`**, salvo configuração explícita de `server.port` (por exemplo em `application-test.properties` ou variável de ambiente).
 
-5. **Documentação da API** (Springdoc): após subir o servidor, consulte a UI OpenAPI/Swagger no host/porta do back-end (caminho típico: `/swagger-ui.html` ou equivalente da versão do springdoc em uso).
+5. **Documentação interativa da API**: use o **Swagger UI** (Springdoc OpenAPI); passo a passo na seção [Documentação da API (Swagger)](#documentação-da-api-swagger).
+
+---
+
+## Documentação da API (Swagger)
+
+O projeto usa **[Springdoc OpenAPI](https://springdoc.org/)** (`springdoc-openapi-starter-webmvc-ui`) com a descrição e o esquema **Bearer JWT** definidos em `OpenApiConfig.java`.
+
+### Abrir a interface (Swagger UI)
+
+Com a API no ar (local ou Docker na porta **8080**), abra no navegador:
+
+| Recurso | URL típica |
+|---------|------------|
+| **Swagger UI** | [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html) |
+| **Redirecionamento legado** | `http://localhost:8080/swagger-ui.html` → costuma redirecionar para a UI acima |
+| **OpenAPI em JSON** | [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs) |
+
+Se a API estiver em outra porta ou host, troque `localhost:8080` pelo endereço correspondente.
+
+### Testar endpoints que exigem usuário logado (JWT)
+
+Muitas rotas usam **`@PreAuthorize`** (por exemplo apenas **ADMIN** em certas operações). Para o Swagger enviar o mesmo token que o front usa:
+
+1. Faça login na aplicação (SPA) ou obtenha um token com `POST /oauth2/token` (grant `password`, client em Basic Auth), como descrito em [Autenticação e fluxo resumido](#autenticação-e-fluxo-resumido).
+2. Copie o valor de **`access_token`** (JWT puro, sem a palavra `Bearer`).
+3. No Swagger UI, clique no botão **Authorize** (cadeado).
+4. No campo **`bearerAuth`** (HTTP Bearer / JWT), cole o token e confirme (**Authorize** / **Close**).
+5. Expanda um endpoint (por exemplo `GET /users`), clique em **Try it out** → **Execute**.
+
+Assim o Spring recebe o cabeçalho `Authorization: Bearer <jwt>` e as roles do token passam a valer nas verificações de método.
+
+### Sem token
+
+Abrir a UI e listar operações funciona sem login; chamadas a rotas protegidas podem responder **401** ou **403** até você autorizar com um JWT válido.
 
 ---
 
