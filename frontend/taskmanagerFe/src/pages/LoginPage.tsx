@@ -42,8 +42,19 @@ export function LoginPage() {
       };
       const data = ax?.response?.data;
       const status = ax?.response?.status;
+      const oauthError = data?.error as string | undefined;
+      const hintInvalidClient =
+        oauthError === "invalid_client"
+          ? "Client OAuth inválido: o CLIENT_ID / CLIENT_SECRET do backend precisa ser o mesmo configurado no front (VITE_OAUTH_CLIENT_ID / VITE_OAUTH_CLIENT_SECRET)."
+          : undefined;
+      const hintInvalidRequest =
+        oauthError === "invalid_request"
+          ? "Requisição de token inválida (parâmetros ou Content-Type). Verifique os logs do backend."
+          : undefined;
       setServerError(
-        data?.error_description ??
+        hintInvalidClient ??
+          hintInvalidRequest ??
+          data?.error_description ??
           data?.message ??
           (status != null && status >= 500
             ? "Erro no servidor ao autenticar. Verifique o backend e tente novamente."

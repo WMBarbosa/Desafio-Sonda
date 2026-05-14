@@ -1,3 +1,6 @@
+-- Reference users, roles, links and sample tasks (same content as former data.sql).
+-- Runs once per database after Hibernate has created/updated the schema (Spring Boot + JPA ordering).
+
 INSERT INTO tb_user (name, email, password) VALUES ('Lucas Andrade', 'lucas@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG');
 INSERT INTO tb_user (name, email, password) VALUES ('Alex Novaes', 'alex@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG');
 
