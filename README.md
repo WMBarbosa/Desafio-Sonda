@@ -4,6 +4,7 @@ Monorepositório de gestão de tarefas com **back-end em Spring Boot** (OAuth2 A
 
 ```text
 taskmanager/
+├── docker-compose.yml       # Postgres + API (Docker)
 ├── backend/                 # API Spring Boot
 └── frontend/
     └── taskmanagerFe/       # SPA React
@@ -17,11 +18,13 @@ taskmanager/
 2. [Estrutura do projeto (back-end)](#estrutura-do-projeto-back-end)
 3. [Estrutura do projeto (front-end)](#estrutura-do-projeto-front-end)
 4. [Pré-requisitos](#pré-requisitos)
-5. [Como iniciar o back-end](#como-iniciar-o-back-end)
-6. [Como iniciar o front-end](#como-iniciar-o-front-end)
-7. [Variáveis de ambiente](#variáveis-de-ambiente)
-8. [Autenticação e fluxo resumido](#autenticação-e-fluxo-resumido)
-9. [Scripts úteis (front-end)](#scripts-úteis-front-end)
+5. [Subir com Docker (Compose)](#subir-com-docker-compose)
+6. [Como iniciar o back-end](#como-iniciar-o-back-end)
+7. [Testes (back-end)](#testes-back-end)
+8. [Como iniciar o front-end](#como-iniciar-o-front-end)
+9. [Variáveis de ambiente](#variáveis-de-ambiente)
+10. [Autenticação e fluxo resumido](#autenticação-e-fluxo-resumido)
+11. [Scripts úteis (front-end)](#scripts-úteis-front-end)
 
 ---
 
@@ -38,7 +41,8 @@ taskmanager/
 | [Spring OAuth2 Resource Server](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/index.html) | Validação JWT nas APIs |
 | [Spring Data JPA](https://spring.io/projects/spring-data-jpa) | Persistência |
 | [PostgreSQL](https://www.postgresql.org/) | Banco (perfil `prod`) |
-| [H2](https://www.h2database.com/) | Disponível para cenários de teste/console |
+| [Flyway](https://flywaydb.org/) | Migrações SQL e dados iniciais (`db/migration`) |
+| [H2](https://www.h2database.com/) | Banco em memória no perfil `test` |
 | [Springdoc OpenAPI](https://springdoc.org/) | Documentação Swagger/OpenAPI |
 
 ### Front-end (`frontend/taskmanagerFe/`)
@@ -130,10 +134,13 @@ backend/
     │       ├── application.properties
     │       ├── application-prod.properties
     │       ├── application-test.properties
-    │       └── data.sql
+    │       └── db/migration/
+    │           └── V1__reference_data.sql
     └── test/
-        └── java/com/barbosa/taskmanager/
-            └── TaskmanagerApplicationTests.java
+        ├── java/com/barbosa/taskmanager/
+        │   └── ...
+        └── resources/
+            └── application.properties
 ```
 
 Resumo por camada:
@@ -198,6 +205,49 @@ Principais rotas da SPA:
 - [Node.js](https://nodejs.org/) **18+** (recomendado LTS atual)
 - npm (vem com o Node)
 
+### Docker (opcional, para Compose)
+
+- [Docker Engine](https://docs.docker.com/engine/install/) e [Docker Compose](https://docs.docker.com/compose/install/) (plugin `docker compose` ou Compose V2)
+
+---
+
+## Subir com Docker (Compose)
+
+Na **raiz** do repositório (`taskmanager/`) existe um `docker-compose.yml` que sobe:
+
+| Serviço | Função |
+|---------|--------|
+| **postgres** | PostgreSQL 16, banco `taskmanager`, usuário/senha `postgres`/`postgres`, porta **5432** no host |
+| **backend** | API Spring Boot (imagem construída a partir de `backend/Dockerfile`), porta **8080** no host |
+
+O back-end usa o perfil **`prod`**, conecta em `jdbc:postgresql://postgres:5432/taskmanager` (hostname `postgres` é o serviço na rede do Compose) e aplica migrações **Flyway** (`backend/src/main/resources/db/migration/`), incluindo dados iniciais (usuários de exemplo, papéis e tarefas). O Hibernate cria/atualiza o schema antes do Flyway; por isso o `application-prod` usa `baseline-on-migrate` e `baseline-version=0` para o primeiro `migrate` em schema já existente mas sem `flyway_schema_history`.
+
+**Subir tudo (build + containers):**
+
+```bash
+cd taskmanager 
+docker compose up --build
+```
+
+No Windows (PowerShell), o equivalente é o mesmo comando na pasta do projeto.
+
+**Persistência:** o volume nomeado `taskmanager_pgdata` guarda os dados do Postgres. Parar com `docker compose down` **não** apaga esse volume; os dados continuam no próximo `up`. Para **zerar** o banco (reaplicar migrações do zero em ambiente de dev):
+
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+**Front-end:** o Compose **não** inclui a SPA. Rode o Vite na sua máquina (`frontend/taskmanagerFe`, `npm run dev`) e use no `.env` algo como `VITE_API_BASE_URL=http://localhost:8080`, alinhado ao `CLIENT_ID` / `CLIENT_SECRET` do compose (por padrão `myclientid` / `myclientsecret`).
+
+Variáveis úteis já passadas ao serviço `backend` no compose (podem ser ajustadas no YAML ou sobrescritas na linha de comando):
+
+| Variável | Papel |
+|----------|--------|
+| `SPRING_DATASOURCE_URL` / `USERNAME` / `PASSWORD` | Conexão JDBC com o Postgres do Compose |
+| `CORS_ORIGINS` | Origens do navegador permitidas pelo Spring (CORS); inclua a URL exata do Vite (porta e host) |
+| `CLIENT_ID` / `CLIENT_SECRET` | Client OAuth2; devem coincidir com `VITE_OAUTH_*` no front |
+
 ---
 
 ## Como iniciar o back-end
@@ -237,6 +287,36 @@ Principais rotas da SPA:
 4. **Porta HTTP**: por padrão o Spring Boot usa **`8080`**, salvo configuração explícita de `server.port` (por exemplo em `application-test.properties` ou variável de ambiente).
 
 5. **Documentação da API** (Springdoc): após subir o servidor, consulte a UI OpenAPI/Swagger no host/porta do back-end (caminho típico: `/swagger-ui.html` ou equivalente da versão do springdoc em uso).
+
+---
+
+## Testes (back-end)
+
+Os testes automatizados usam **JUnit 5** e o **Maven Wrapper** do projeto. É necessário **JDK 21** no `PATH` (a mesma versão do `pom.xml`).
+
+1. Entre na pasta do back-end:
+
+   ```bash
+   cd backend
+   ```
+
+2. Rode a suíte de testes:
+
+   ```bash
+   ./mvnw test
+   ```
+
+   No Windows (PowerShell):
+
+   ```powershell
+   .\mvnw.cmd test
+   ```
+
+   Com Maven instalado globalmente: `mvn test`.
+
+**O que isso executa:** o perfil ativo nos testes é o **`test`** (`src/test/resources/application.properties` define `spring.profiles.active=test`), carregando `application-test.properties`: banco **H2 em memória**, `spring.jpa.hibernate.ddl-auto=create-drop` e **`spring.flyway.enabled=false`**, porque as migrações Flyway são escritas para PostgreSQL e os testes de repositório montam dados no `@BeforeEach`. Testes de fatia (`@DataJpaTest`) não sobem o servidor HTTP; o `TaskmanagerApplicationTests` apenas valida o **contexto Spring** com esse perfil.
+
+Para pular testes em um build (por exemplo `package`): `./mvnw -DskipTests package`.
 
 ---
 
